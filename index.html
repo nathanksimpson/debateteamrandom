@@ -1,4 +1,4 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -93,16 +93,21 @@
             border-color: #667eea;
         }
 
-        input[type="number"] {
+        input[type="number"], input[type="text"], select {
             padding: 10px;
             border: 2px solid #ddd;
             border-radius: 5px;
             font-size: 14px;
         }
 
-        input[type="number"]:focus {
+        input[type="number"]:focus, input[type="text"]:focus, select:focus {
             outline: none;
             border-color: #667eea;
+        }
+
+        select {
+            cursor: pointer;
+            background: white;
         }
 
         button {
@@ -139,6 +144,14 @@
 
         button.danger:hover {
             background: #c82333;
+        }
+
+        button.success {
+            background: #28a745;
+        }
+
+        button.success:hover {
+            background: #218838;
         }
 
         .student-list {
@@ -239,10 +252,27 @@
             border-bottom: 2px solid #eee;
         }
 
+        .format-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.7em;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+
         .teams {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
+        }
+
+        /* For 4-team formats like BP */
+        .teams.four-teams {
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto;
         }
 
         .team {
@@ -251,14 +281,34 @@
             border: 2px solid;
         }
 
-        .team.proposition {
+        .team.proposition, .team.government, .team.affirmative, .team.pro {
             background: #d4edda;
             border-color: #28a745;
         }
 
-        .team.opposition {
+        .team.opposition, .team.negative, .team.con {
             background: #f8d7da;
             border-color: #dc3545;
+        }
+
+        .team.opening-gov {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .team.opening-opp {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+
+        .team.closing-gov {
+            background: #c3e6cb;
+            border-color: #1e7e34;
+        }
+
+        .team.closing-opp {
+            background: #f5c6cb;
+            border-color: #bd2130;
         }
 
         .team-header {
@@ -267,11 +317,15 @@
             font-size: 1.1em;
         }
 
-        .team.proposition .team-header {
+        .team.proposition .team-header, .team.government .team-header, 
+        .team.affirmative .team-header, .team.pro .team-header,
+        .team.opening-gov .team-header, .team.closing-gov .team-header {
             color: #155724;
         }
 
-        .team.opposition .team-header {
+        .team.opposition .team-header, .team.negative .team-header, 
+        .team.con .team-header, .team.opening-opp .team-header, 
+        .team.closing-opp .team-header {
             color: #721c24;
         }
 
@@ -285,6 +339,26 @@
             background: white;
             border-radius: 5px;
             border: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .role-badge {
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+
+        .role-badge.whip {
+            background: #6c757d;
+        }
+
+        .role-badge.reply {
+            background: #17a2b8;
         }
 
         .hidden {
@@ -295,6 +369,294 @@
             text-align: center;
             padding: 40px;
             color: #999;
+        }
+
+        /* Format selector styles */
+        .format-selector {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .format-selector .input-group {
+            margin-bottom: 0;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .format-info {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .format-info h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .format-info .format-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .format-info .detail-item {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .format-info .detail-label {
+            font-weight: 600;
+            color: #555;
+            font-size: 0.85em;
+        }
+
+        .format-info .detail-value {
+            color: #333;
+            margin-top: 3px;
+        }
+
+        .roles-preview {
+            margin-top: 15px;
+        }
+
+        .roles-preview h4 {
+            color: #555;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+
+        .roles-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .roles-column {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .roles-column h5 {
+            font-size: 0.85em;
+            margin-bottom: 8px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .roles-column.gov h5 {
+            color: #155724;
+        }
+
+        .roles-column.opp h5 {
+            color: #721c24;
+        }
+
+        .roles-column ul {
+            list-style: none;
+            font-size: 0.85em;
+        }
+
+        .roles-column li {
+            padding: 3px 0;
+            color: #666;
+        }
+
+        .roles-column li .role-abbr {
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* Custom format builder */
+        .custom-format-builder {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .custom-format-builder h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .custom-roles-input {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .custom-roles-input .input-group label {
+            font-size: 0.9em;
+        }
+
+        .role-list-display {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .role-tag {
+            background: #667eea;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .role-tag .remove-role {
+            background: rgba(255,255,255,0.3);
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .role-tag .remove-role:hover {
+            background: rgba(255,255,255,0.5);
+        }
+
+        /* Mode toggle styles */
+        .mode-toggle {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            flex: 1;
+            min-width: 200px;
+            padding: 20px;
+            background: white;
+            border: 3px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .mode-btn:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .mode-btn.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .mode-btn .mode-desc {
+            font-size: 12px;
+            font-weight: normal;
+            opacity: 0.8;
+        }
+
+        /* Team pair input styles */
+        .team-pair {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .team-pair-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .team-pair-header h3 {
+            color: #667eea;
+            font-size: 1.1em;
+        }
+
+        .team-pair-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .team-input-box {
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+
+        .team-input-box.team-a {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+
+        .team-input-box.team-b {
+            background: #fff3e0;
+            border-color: #ff9800;
+        }
+
+        .team-input-box h4 {
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+
+        .team-input-box.team-a h4 {
+            color: #1565c0;
+        }
+
+        .team-input-box.team-b h4 {
+            color: #e65100;
+        }
+
+        .team-input-box textarea {
+            min-height: 80px;
+            font-size: 13px;
+        }
+
+        .team-input-box input[type="text"] {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .randomize-indicator {
+            text-align: center;
+            padding: 10px;
+            color: #666;
+            font-size: 0.9em;
+            background: #f8f9fa;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .randomize-indicator span {
+            font-size: 1.5em;
         }
 
         @media (max-width: 768px) {
@@ -309,6 +671,146 @@
             h1 {
                 font-size: 2em;
             }
+
+            .custom-roles-input {
+                grid-template-columns: 1fr;
+            }
+
+            .roles-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .team-pair-inputs {
+                grid-template-columns: 1fr;
+            }
+
+            .mode-toggle {
+                flex-direction: column;
+            }
+        }
+
+        /* Notes area for each debate */
+        .debate-notes {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #ddd;
+        }
+
+        .debate-notes label {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .debate-notes textarea {
+            min-height: 60px;
+            margin-top: 5px;
+            font-size: 13px;
+        }
+
+        /* Print header (hidden on screen, repeats on every page) */
+        .print-header {
+            display: none;
+        }
+
+        .print-title {
+            display: none;
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .container {
+                box-shadow: none;
+                padding: 0;
+                max-width: 100%;
+            }
+
+            /* Hide non-essential elements */
+            h1, 
+            .section:not(#results-section),
+            .stats,
+            .actions,
+            #results-section > h2,
+            .print-title,
+            .print-date {
+                display: none !important;
+            }
+
+            /* Print table structure for repeating header */
+            .print-table {
+                display: table !important;
+                width: 100%;
+            }
+
+            .print-header {
+                display: table-header-group !important;
+            }
+
+            .print-header-content {
+                text-align: center;
+                padding: 15px 0;
+                border-bottom: 2px solid #333;
+                margin-bottom: 15px;
+            }
+
+            .print-header-title {
+                font-size: 1.6em;
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+
+            .print-header-date {
+                font-size: 0.85em;
+                color: #666;
+            }
+
+            .print-body {
+                display: table-row-group !important;
+            }
+
+            /* Show results section */
+            #results-section {
+                display: block !important;
+                background: white;
+                padding: 0;
+            }
+
+            .debate-card {
+                break-inside: avoid;
+                page-break-inside: avoid;
+                margin-bottom: 20px;
+                border: 1px solid #333;
+                box-shadow: none;
+            }
+
+            .team.proposition, .team.government, .team.affirmative, .team.pro,
+            .team.opening-gov, .team.closing-gov {
+                background: #e8f5e9 !important;
+                border-color: #4caf50 !important;
+            }
+
+            .team.opposition, .team.negative, .team.con,
+            .team.opening-opp, .team.closing-opp {
+                background: #ffebee !important;
+                border-color: #f44336 !important;
+            }
+
+            /* Style notes for print */
+            .debate-notes textarea {
+                border: 1px solid #ccc;
+                min-height: 50px;
+                background: #fafafa;
+            }
+
+            .debate-notes label {
+                font-weight: bold;
+            }
         }
     </style>
 </head>
@@ -316,8 +818,23 @@
     <div class="container">
         <h1>🎯 Debate Team Assignment App</h1>
 
-        <!-- Student Input Section -->
+        <!-- Mode Selection -->
         <div class="section">
+            <h2>Assignment Mode</h2>
+            <div class="mode-toggle">
+                <button id="mode-random" class="mode-btn active" onclick="setMode('random')">
+                    🎲 Random Assignment
+                    <span class="mode-desc">Add students, randomly assign to teams</span>
+                </button>
+                <button id="mode-teams" class="mode-btn" onclick="setMode('teams')">
+                    👥 Pre-made Teams
+                    <span class="mode-desc">Input existing teams, randomize sides</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Student Input Section (Random Mode) -->
+        <div class="section" id="random-mode-section">
             <h2>Add Students</h2>
             
             <div class="input-group">
@@ -342,10 +859,111 @@
             </div>
         </div>
 
+        <!-- Pre-made Teams Section (Teams Mode) -->
+        <div class="section hidden" id="teams-mode-section">
+            <h2>Input Pre-made Teams</h2>
+            <p style="color: #666; margin-bottom: 15px;">Enter your existing teams below. The app will randomly assign which team is Proposition and which is Opposition.</p>
+            
+            <div id="team-pairs-container">
+                <!-- Team pairs will be added here -->
+            </div>
+
+            <div class="actions">
+                <button onclick="addTeamPair()" class="success">➕ Add Another Debate</button>
+                <button onclick="clearAllTeamPairs()" class="secondary">Clear All</button>
+            </div>
+        </div>
+
+        <!-- Debate Format Section -->
+        <div class="section">
+            <h2>Select Debate Format</h2>
+            
+            <div class="format-selector">
+                <div class="input-group">
+                    <label for="debate-format">Debate Format:</label>
+                    <select id="debate-format" onchange="onFormatChange()" style="width: 100%;">
+                        <option value="ap">Asia Parliamentary (AP)</option>
+                        <option value="bp">British Parliamentary (BP)</option>
+                        <option value="wudc">WUDC (World Universities)</option>
+                        <option value="policy">Policy Debate (CX)</option>
+                        <option value="ld">Lincoln-Douglas (LD)</option>
+                        <option value="pf">Public Forum (PF)</option>
+                        <option value="bf">Balloon/Forum Debate (BF)</option>
+                        <option value="knc">KNC (Korea National Congress)</option>
+                        <option value="simson">Simson Format</option>
+                        <option value="simple">Simple (No Roles)</option>
+                        <option value="custom">Custom Format</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="include-reply">
+                        <input type="checkbox" id="include-reply" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 5px;">
+                        Include Reply Speeches (if applicable)
+                    </label>
+                </div>
+            </div>
+
+            <div id="format-info" class="format-info"></div>
+
+            <!-- Custom Format Builder (hidden by default) -->
+            <div id="custom-format-builder" class="custom-format-builder hidden">
+                <h3>🛠️ Build Your Custom Format</h3>
+                
+                <div class="input-group">
+                    <label for="custom-format-name">Format Name:</label>
+                    <input type="text" id="custom-format-name" placeholder="My Custom Format" style="width: 100%; max-width: 300px;">
+                </div>
+
+                <div class="custom-roles-input">
+                    <div class="input-group">
+                        <label>Government/Proposition/Affirmative Roles:</label>
+                        <div class="manual-entry">
+                            <input type="text" id="custom-gov-role" placeholder="e.g., Prime Minister" onkeypress="if(event.key === 'Enter') addCustomRole('gov')">
+                            <button onclick="addCustomRole('gov')" class="success">Add</button>
+                        </div>
+                        <div id="custom-gov-roles" class="role-list-display"></div>
+                    </div>
+                    <div class="input-group">
+                        <label>Opposition/Negative Roles:</label>
+                        <div class="manual-entry">
+                            <input type="text" id="custom-opp-role" placeholder="e.g., Leader of Opposition" onkeypress="if(event.key === 'Enter') addCustomRole('opp')">
+                            <button onclick="addCustomRole('opp')" class="danger">Add</button>
+                        </div>
+                        <div id="custom-opp-roles" class="role-list-display"></div>
+                    </div>
+                </div>
+
+                <div class="input-group" style="margin-top: 15px;">
+                    <label for="custom-team-names">Team Names:</label>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <input type="text" id="custom-gov-name" placeholder="Gov team name (e.g., Government)" style="flex: 1; min-width: 150px;">
+                        <input type="text" id="custom-opp-name" placeholder="Opp team name (e.g., Opposition)" style="flex: 1; min-width: 150px;">
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button onclick="saveCustomFormat()" class="success">💾 Save Custom Format</button>
+                    <button onclick="loadSavedFormats()" class="secondary">📂 Load Saved</button>
+                </div>
+
+                <div id="saved-formats-list" class="hidden" style="margin-top: 15px;"></div>
+            </div>
+        </div>
+
         <!-- Generate Section -->
         <div class="section">
             <h2>Generate Teams</h2>
             <div class="input-group">
+                <label for="class-title">Class Title (for printing):</label>
+                <input type="text" id="class-title" placeholder="e.g., Period 3 - US History" style="width: 100%; max-width: 400px; padding: 10px; border: 2px solid #ddd; border-radius: 5px; font-size: 14px;">
+            </div>
+            <div class="input-group">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" id="limit-team-size" checked style="width: 18px; height: 18px; cursor: pointer;">
+                    <span>Limit Maximum Team Size</span>
+                </label>
+            </div>
+            <div class="input-group" id="max-team-size-group">
                 <label for="max-team-size">Maximum Team Size:</label>
                 <input type="number" id="max-team-size" value="3" min="2" max="10" class="manual-entry input" style="max-width: 150px; padding: 10px; border: 2px solid #ddd; border-radius: 5px; font-size: 14px;">
             </div>
@@ -359,9 +977,26 @@
         <div class="section hidden" id="results-section">
             <h2>Debate Assignments</h2>
             
+            <!-- Old print elements (kept for copy function) -->
+            <div class="print-title" id="print-title"></div>
+            <div class="print-date" id="print-date"></div>
+            
             <div class="stats" id="stats"></div>
             
-            <div class="debates-container" id="debates-container"></div>
+            <!-- Print table wrapper for repeating header -->
+            <div class="print-table">
+                <!-- This header repeats on every printed page -->
+                <div class="print-header">
+                    <div class="print-header-content">
+                        <div class="print-header-title" id="print-header-title"></div>
+                        <div class="print-header-date" id="print-header-date"></div>
+                    </div>
+                </div>
+                
+                <div class="print-body">
+                    <div class="debates-container" id="debates-container"></div>
+                </div>
+            </div>
 
             <div class="actions">
                 <button onclick="copyResults()" class="secondary">Copy Results</button>
@@ -373,17 +1008,483 @@
     <script>
         let students = [];
         let debates = [];
-        let roleHistory = {}; // Track role assignments for balancing
+        let roleHistory = {};
+        let customGovRoles = [];
+        let customOppRoles = [];
+        let savedCustomFormats = [];
+        let currentMode = 'random'; // 'random' or 'teams'
+        let teamPairs = []; // For pre-made teams mode
 
-        // Load students from localStorage on page load
+        // ========================================
+        // DEBATE FORMAT DEFINITIONS
+        // ========================================
+        const debateFormats = {
+            ap: {
+                name: "Asia Parliamentary (AP)",
+                teams: 2,
+                govName: "Proposition",
+                oppName: "Opposition",
+                govIcon: "✅",
+                oppIcon: "❌",
+                govRoles: [
+                    { abbr: "PM", name: "Prime Minister", desc: "Defines the motion, sets framework, presents main arguments" },
+                    { abbr: "DPM", name: "Deputy Prime Minister", desc: "Rebuts LO, expands Prop case" },
+                    { abbr: "GW", name: "Government Whip", desc: "Rebuts, summarizes Prop case (no new arguments)", isWhip: true }
+                ],
+                oppRoles: [
+                    { abbr: "LO", name: "Leader of Opposition", desc: "Responds to PM, rebuts, presents Opp case" },
+                    { abbr: "DLO", name: "Deputy Leader of Opposition", desc: "Rebuts DPM, expands Opp case" },
+                    { abbr: "OW", name: "Opposition Whip", desc: "Rebuts, summarizes Opp case (no new arguments)", isWhip: true }
+                ],
+                replyRoles: {
+                    opp: { abbr: "OR", name: "Opposition Reply", desc: "Summary speech for Opposition" },
+                    gov: { abbr: "GR", name: "Government Reply", desc: "Summary speech for Government" }
+                },
+                speakerOrder: ["PM", "LO", "DPM", "DLO", "GW", "OW", "OR*", "GR*"],
+                minStudents: 4,
+                idealStudents: 6
+            },
+            bp: {
+                name: "British Parliamentary (BP)",
+                teams: 4,
+                isFourTeam: true,
+                teamStructure: [
+                    { id: "og", name: "Opening Government", icon: "🟢", class: "opening-gov" },
+                    { id: "oo", name: "Opening Opposition", icon: "🔴", class: "opening-opp" },
+                    { id: "cg", name: "Closing Government", icon: "🟩", class: "closing-gov" },
+                    { id: "co", name: "Closing Opposition", icon: "🟥", class: "closing-opp" }
+                ],
+                roles: {
+                    og: [
+                        { abbr: "PM", name: "Prime Minister", desc: "Defines the case, sets OG arguments" },
+                        { abbr: "DPM", name: "Deputy Prime Minister", desc: "Supports PM, adds OG extension" }
+                    ],
+                    oo: [
+                        { abbr: "LO", name: "Leader of Opposition", desc: "Direct rebuttal to PM, OO arguments" },
+                        { abbr: "DLO", name: "Deputy Leader of Opposition", desc: "Supports LO, OO extension" }
+                    ],
+                    cg: [
+                        { abbr: "MG", name: "Member of Government", desc: "Provides new CG extension" },
+                        { abbr: "GW", name: "Government Whip", desc: "Summarizes CG/OG, no new material", isWhip: true }
+                    ],
+                    co: [
+                        { abbr: "MO", name: "Member of Opposition", desc: "Provides new CO extension" },
+                        { abbr: "OW", name: "Opposition Whip", desc: "Summarizes CO/OO, no new material", isWhip: true }
+                    ]
+                },
+                speakerOrder: ["PM", "LO", "DPM", "DLO", "MG", "MO", "GW", "OW"],
+                minStudents: 8,
+                idealStudents: 8,
+                notes: "Only CG and CO provide 'extensions'. Whips summarize the half."
+            },
+            wudc: {
+                name: "WUDC (World Universities)",
+                teams: 4,
+                isFourTeam: true,
+                teamStructure: [
+                    { id: "og", name: "Opening Government", icon: "🟢", class: "opening-gov" },
+                    { id: "oo", name: "Opening Opposition", icon: "🔴", class: "opening-opp" },
+                    { id: "cg", name: "Closing Government", icon: "🟩", class: "closing-gov" },
+                    { id: "co", name: "Closing Opposition", icon: "🟥", class: "closing-opp" }
+                ],
+                roles: {
+                    og: [
+                        { abbr: "PM", name: "Prime Minister", desc: "Defines the case, sets OG arguments" },
+                        { abbr: "DPM", name: "Deputy Prime Minister", desc: "Supports PM, adds OG extension" }
+                    ],
+                    oo: [
+                        { abbr: "LO", name: "Leader of Opposition", desc: "Direct rebuttal to PM, OO arguments" },
+                        { abbr: "DLO", name: "Deputy Leader of Opposition", desc: "Supports LO, OO extension" }
+                    ],
+                    cg: [
+                        { abbr: "MG", name: "Member of Government", desc: "Provides new CG extension" },
+                        { abbr: "GW", name: "Government Whip", desc: "Summarizes CG/OG, no new material", isWhip: true }
+                    ],
+                    co: [
+                        { abbr: "MO", name: "Member of Opposition", desc: "Provides new CO extension" },
+                        { abbr: "OW", name: "Opposition Whip", desc: "Summarizes CO/OO, no new material", isWhip: true }
+                    ]
+                },
+                speakerOrder: ["PM", "LO", "DPM", "DLO", "MG", "MO", "GW", "OW"],
+                minStudents: 8,
+                idealStudents: 8,
+                notes: "No reply speeches. No POIs during whip speeches (depending on tournament rules)."
+            },
+            policy: {
+                name: "Policy Debate (CX)",
+                teams: 2,
+                govName: "Affirmative",
+                oppName: "Negative",
+                govIcon: "🔵",
+                oppIcon: "🔶",
+                govRoles: [
+                    { abbr: "1A", name: "First Affirmative", desc: "1AC: Case presentation, 2AC: Responds to 1NC" },
+                    { abbr: "2A", name: "Second Affirmative", desc: "1AR: Responds to Neg block, 2AR: Final Affirmative speech" }
+                ],
+                oppRoles: [
+                    { abbr: "1N", name: "First Negative", desc: "1NC: Off-case attacks, disadvantages, counterplans" },
+                    { abbr: "2N", name: "Second Negative", desc: "2NC: Develops Neg strategy, NR: Negative summary" }
+                ],
+                speakerOrder: ["1AC", "CX", "1NC", "CX", "2AC", "CX", "2NC", "CX", "1NR", "1AR", "2NR", "2AR"],
+                minStudents: 4,
+                idealStudents: 4,
+                notes: "Cross-examinations occur after each constructive speech."
+            },
+            ld: {
+                name: "Lincoln-Douglas (LD)",
+                teams: 2,
+                isOneVsOne: true,
+                govName: "Affirmative",
+                oppName: "Negative",
+                govIcon: "🔵",
+                oppIcon: "🔶",
+                govRoles: [
+                    { abbr: "AFF", name: "Affirmative", desc: "AC: Framework + value + contention, 1AR & 2AR: Rebuttals" }
+                ],
+                oppRoles: [
+                    { abbr: "NEG", name: "Negative", desc: "NC: Neg case + refutation, NR: Negative Rebuttal" }
+                ],
+                speakerOrder: ["AC", "CX by Neg", "NC", "CX by Aff", "1AR", "NR", "2AR"],
+                minStudents: 2,
+                idealStudents: 2,
+                notes: "Focus on values & philosophy. 1v1 format."
+            },
+            pf: {
+                name: "Public Forum (PF)",
+                teams: 2,
+                govName: "Pro",
+                oppName: "Con",
+                govIcon: "👍",
+                oppIcon: "👎",
+                govRoles: [
+                    { abbr: "1st Pro", name: "First Speaker Pro", desc: "Opening, Summary, Final Focus" },
+                    { abbr: "2nd Pro", name: "Second Speaker Pro", desc: "Rebuttal, Crossfire participation" }
+                ],
+                oppRoles: [
+                    { abbr: "1st Con", name: "First Speaker Con", desc: "Opening, Summary, Final Focus" },
+                    { abbr: "2nd Con", name: "Second Speaker Con", desc: "Rebuttal, Crossfire participation" }
+                ],
+                speakerOrder: ["1st Pro", "1st Con", "Crossfire", "2nd Pro", "2nd Con", "Crossfire", "Summary Pro", "Summary Con", "Grand Crossfire", "Final Focus Pro", "Final Focus Con"],
+                minStudents: 4,
+                idealStudents: 4,
+                notes: "Focus on accessibility for general audiences."
+            },
+            bf: {
+                name: "Balloon/Forum Debate (BF)",
+                teams: 2,
+                govName: "Team A",
+                oppName: "Team B",
+                govIcon: "🅰️",
+                oppIcon: "🅱️",
+                govRoles: [
+                    { abbr: "A1", name: "Speaker 1", desc: "Opening Statement" },
+                    { abbr: "A2", name: "Speaker 2", desc: "Rebuttals & Arguments" },
+                    { abbr: "A3", name: "Speaker 3", desc: "Final Statement (optional)" }
+                ],
+                oppRoles: [
+                    { abbr: "B1", name: "Speaker 1", desc: "Opening Statement" },
+                    { abbr: "B2", name: "Speaker 2", desc: "Rebuttals & Arguments" },
+                    { abbr: "B3", name: "Speaker 3", desc: "Final Statement (optional)" }
+                ],
+                speakerOrder: ["A1 Opening", "B1 Opening", "Rebuttals", "Further Arguments", "Final Statements"],
+                minStudents: 4,
+                idealStudents: 6,
+                notes: "Used more for training and light competition. Flexible format."
+            },
+            knc: {
+                name: "KNC (Korea National Congress)",
+                teams: 2,
+                govName: "Affirmative",
+                oppName: "Negative",
+                govIcon: "🇰🇷",
+                oppIcon: "⚖️",
+                govRoles: [
+                    { abbr: "Aff Rep", name: "Affirmative Representative", desc: "Opening Statement, Interpellation, Rebuttal, Closing" },
+                    { abbr: "Aff 2", name: "Affirmative Second", desc: "Support during Free Debate" }
+                ],
+                oppRoles: [
+                    { abbr: "Neg Rep", name: "Negative Representative", desc: "Opening Statement, Interpellation, Rebuttal, Closing" },
+                    { abbr: "Neg 2", name: "Negative Second", desc: "Support during Free Debate" }
+                ],
+                speakerOrder: ["Aff Opening", "Neg Opening", "Interpellation (A→B)", "Interpellation (B→A)", "Rebuttals", "Free Debate", "Aff Closing", "Neg Closing"],
+                minStudents: 4,
+                idealStudents: 4,
+                notes: "Parliamentary/political simulation. Interpellation is cross-examination."
+            },
+            simson: {
+                name: "Simson Format",
+                teams: 2,
+                govName: "Government",
+                oppName: "Opposition",
+                govIcon: "🏛️",
+                oppIcon: "⚔️",
+                govRoles: [
+                    { abbr: "PM", name: "Prime Minister", desc: "Opens the case for Government, presents main arguments" },
+                    { abbr: "DPM", name: "Deputy Prime Minister", desc: "Supports PM, expands Government case" },
+                    { abbr: "DPM2", name: "Deputy Prime Minister 2", desc: "Further develops Government arguments" }
+                ],
+                oppRoles: [
+                    { abbr: "LO", name: "Leader of Opposition", desc: "Responds to PM, presents Opposition case" },
+                    { abbr: "DLO", name: "Deputy Leader of Opposition", desc: "Supports LO, expands Opposition case" },
+                    { abbr: "DLO2", name: "Deputy Leader of Opposition 2", desc: "Further develops Opposition arguments" }
+                ],
+                speakerOrder: ["PM", "LO", "DPM", "DLO", "DPM2", "DLO2"],
+                minStudents: 4,
+                idealStudents: 6,
+                notes: "3v3 debate format with extended deputy positions."
+            },
+            simple: {
+                name: "Simple (No Roles)",
+                teams: 2,
+                govName: "Proposition",
+                oppName: "Opposition",
+                govIcon: "✅",
+                oppIcon: "❌",
+                govRoles: [],
+                oppRoles: [],
+                speakerOrder: [],
+                minStudents: 4,
+                idealStudents: 4,
+                notes: "Basic team assignment without specific roles."
+            },
+            custom: {
+                name: "Custom Format",
+                teams: 2,
+                govName: "Government",
+                oppName: "Opposition",
+                govIcon: "🟢",
+                oppIcon: "🔴",
+                govRoles: [],
+                oppRoles: [],
+                speakerOrder: [],
+                minStudents: 2,
+                idealStudents: 4,
+                notes: "Create your own debate format with custom roles."
+            }
+        };
+
+        // ========================================
+        // INITIALIZATION
+        // ========================================
         window.addEventListener('DOMContentLoaded', () => {
             const saved = localStorage.getItem('debateStudents');
             if (saved) {
                 students = JSON.parse(saved);
                 updateStudentList();
             }
+            
+            // Load saved custom formats
+            const savedFormats = localStorage.getItem('customDebateFormats');
+            if (savedFormats) {
+                savedCustomFormats = JSON.parse(savedFormats);
+            }
+            
+            // Set up toggle for max team size
+            const limitCheckbox = document.getElementById('limit-team-size');
+            const maxTeamSizeGroup = document.getElementById('max-team-size-group');
+            
+            limitCheckbox.addEventListener('change', () => {
+                maxTeamSizeGroup.style.display = limitCheckbox.checked ? 'block' : 'none';
+            });
+
+            // Initialize format display
+            onFormatChange();
         });
 
+        // ========================================
+        // FORMAT SELECTION HANDLING
+        // ========================================
+        function onFormatChange() {
+            const formatSelect = document.getElementById('debate-format');
+            const selectedFormat = formatSelect.value;
+            const customBuilder = document.getElementById('custom-format-builder');
+            const formatInfo = document.getElementById('format-info');
+            const maxTeamSizeInput = document.getElementById('max-team-size');
+
+            // Show/hide custom builder
+            if (selectedFormat === 'custom') {
+                customBuilder.classList.remove('hidden');
+            } else {
+                customBuilder.classList.add('hidden');
+            }
+
+            // Update format info display
+            const format = debateFormats[selectedFormat];
+            
+            // Update max team size suggestion based on format
+            if (format.isFourTeam) {
+                maxTeamSizeInput.value = 2;
+            } else if (format.isOneVsOne) {
+                maxTeamSizeInput.value = 1;
+            } else {
+                maxTeamSizeInput.value = Math.max(format.govRoles.length, format.oppRoles.length) || 3;
+            }
+
+            formatInfo.innerHTML = generateFormatInfoHTML(format);
+        }
+
+        function generateFormatInfoHTML(format) {
+            let html = `<h3>${format.name}</h3>`;
+            html += `<div class="format-details">`;
+            html += `<div class="detail-item"><div class="detail-label">Teams</div><div class="detail-value">${format.teams} ${format.isFourTeam ? '(4-team format)' : format.isOneVsOne ? '(1v1)' : ''}</div></div>`;
+            html += `<div class="detail-item"><div class="detail-label">Min Students</div><div class="detail-value">${format.minStudents}</div></div>`;
+            html += `<div class="detail-item"><div class="detail-label">Ideal Students</div><div class="detail-value">${format.idealStudents}</div></div>`;
+            if (format.notes) {
+                html += `<div class="detail-item" style="grid-column: 1/-1;"><div class="detail-label">Notes</div><div class="detail-value">${format.notes}</div></div>`;
+            }
+            html += `</div>`;
+
+            // Roles preview
+            if (format.isFourTeam) {
+                html += `<div class="roles-preview"><h4>Speaker Order: ${format.speakerOrder.join(' → ')}</h4>`;
+                html += `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">`;
+                format.teamStructure.forEach(team => {
+                    const roles = format.roles[team.id];
+                    html += `<div class="roles-column ${team.id.includes('g') ? 'gov' : 'opp'}">`;
+                    html += `<h5>${team.icon} ${team.name}</h5><ul>`;
+                    roles.forEach(r => {
+                        html += `<li><span class="role-abbr">${r.abbr}</span> - ${r.name}</li>`;
+                    });
+                    html += `</ul></div>`;
+                });
+                html += `</div></div>`;
+            } else if (format.govRoles.length > 0 || format.oppRoles.length > 0) {
+                html += `<div class="roles-preview"><h4>Speaker Order: ${format.speakerOrder.join(' → ')}</h4>`;
+                html += `<div class="roles-grid">`;
+                html += `<div class="roles-column gov"><h5>${format.govIcon} ${format.govName} Roles</h5><ul>`;
+                format.govRoles.forEach(r => {
+                    html += `<li><span class="role-abbr">${r.abbr}</span> - ${r.name}</li>`;
+                });
+                html += `</ul></div>`;
+                html += `<div class="roles-column opp"><h5>${format.oppIcon} ${format.oppName} Roles</h5><ul>`;
+                format.oppRoles.forEach(r => {
+                    html += `<li><span class="role-abbr">${r.abbr}</span> - ${r.name}</li>`;
+                });
+                html += `</ul></div>`;
+                html += `</div></div>`;
+            }
+
+            return html;
+        }
+
+        // ========================================
+        // CUSTOM FORMAT BUILDER
+        // ========================================
+        function addCustomRole(side) {
+            const input = document.getElementById(`custom-${side}-role`);
+            const roleName = input.value.trim();
+            
+            if (!roleName) return;
+
+            if (side === 'gov') {
+                customGovRoles.push({ abbr: roleName.substring(0, 3).toUpperCase(), name: roleName });
+            } else {
+                customOppRoles.push({ abbr: roleName.substring(0, 3).toUpperCase(), name: roleName });
+            }
+
+            input.value = '';
+            updateCustomRolesDisplay();
+        }
+
+        function removeCustomRole(side, index) {
+            if (side === 'gov') {
+                customGovRoles.splice(index, 1);
+            } else {
+                customOppRoles.splice(index, 1);
+            }
+            updateCustomRolesDisplay();
+        }
+
+        function updateCustomRolesDisplay() {
+            const govContainer = document.getElementById('custom-gov-roles');
+            const oppContainer = document.getElementById('custom-opp-roles');
+
+            govContainer.innerHTML = customGovRoles.map((r, i) => 
+                `<div class="role-tag"><span>${r.name}</span><button class="remove-role" onclick="removeCustomRole('gov', ${i})">×</button></div>`
+            ).join('');
+
+            oppContainer.innerHTML = customOppRoles.map((r, i) => 
+                `<div class="role-tag" style="background: #dc3545;"><span>${r.name}</span><button class="remove-role" onclick="removeCustomRole('opp', ${i})">×</button></div>`
+            ).join('');
+        }
+
+        function saveCustomFormat() {
+            const formatName = document.getElementById('custom-format-name').value.trim() || 'My Custom Format';
+            const govName = document.getElementById('custom-gov-name').value.trim() || 'Government';
+            const oppName = document.getElementById('custom-opp-name').value.trim() || 'Opposition';
+
+            if (customGovRoles.length === 0 && customOppRoles.length === 0) {
+                alert('Please add at least one role before saving.');
+                return;
+            }
+
+            const customFormat = {
+                id: 'custom_' + Date.now(),
+                name: formatName,
+                govName: govName,
+                oppName: oppName,
+                govRoles: [...customGovRoles],
+                oppRoles: [...customOppRoles]
+            };
+
+            savedCustomFormats.push(customFormat);
+            localStorage.setItem('customDebateFormats', JSON.stringify(savedCustomFormats));
+            
+            alert(`Custom format "${formatName}" saved!`);
+            loadSavedFormats();
+        }
+
+        function loadSavedFormats() {
+            const container = document.getElementById('saved-formats-list');
+            
+            if (savedCustomFormats.length === 0) {
+                container.innerHTML = '<p style="color: #666;">No saved custom formats yet.</p>';
+                container.classList.remove('hidden');
+                return;
+            }
+
+            let html = '<h4 style="margin-bottom: 10px;">Saved Custom Formats:</h4>';
+            savedCustomFormats.forEach((format, index) => {
+                html += `
+                    <div style="background: white; padding: 10px; border-radius: 5px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>${format.name}</strong>
+                            <span style="color: #666; font-size: 0.85em;"> (${format.govRoles.length} gov, ${format.oppRoles.length} opp roles)</span>
+                        </div>
+                        <div style="display: flex; gap: 5px;">
+                            <button onclick="applySavedFormat(${index})" class="success" style="padding: 5px 10px; font-size: 12px;">Use</button>
+                            <button onclick="deleteSavedFormat(${index})" class="danger" style="padding: 5px 10px; font-size: 12px;">Delete</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            container.classList.remove('hidden');
+        }
+
+        function applySavedFormat(index) {
+            const format = savedCustomFormats[index];
+            customGovRoles = [...format.govRoles];
+            customOppRoles = [...format.oppRoles];
+            document.getElementById('custom-format-name').value = format.name;
+            document.getElementById('custom-gov-name').value = format.govName;
+            document.getElementById('custom-opp-name').value = format.oppName;
+            updateCustomRolesDisplay();
+            alert(`Loaded "${format.name}" format!`);
+        }
+
+        function deleteSavedFormat(index) {
+            if (confirm(`Delete "${savedCustomFormats[index].name}"?`)) {
+                savedCustomFormats.splice(index, 1);
+                localStorage.setItem('customDebateFormats', JSON.stringify(savedCustomFormats));
+                loadSavedFormats();
+            }
+        }
+
+        // ========================================
+        // STUDENT MANAGEMENT
+        // ========================================
         function addStudent() {
             const input = document.getElementById('manual-student');
             const name = input.value.trim();
@@ -467,108 +1568,187 @@
             return div.innerHTML;
         }
 
-        function getRoleBalance(name) {
-            // Returns the difference: positive means more proposition, negative means more opposition
-            if (!roleHistory[name]) return 0;
-            return (roleHistory[name].proposition || 0) - (roleHistory[name].opposition || 0);
-        }
+        // ========================================
+        // DEBATE GENERATION
+        // ========================================
+        function getCurrentFormat() {
+            const formatId = document.getElementById('debate-format').value;
+            let format = { ...debateFormats[formatId] };
 
-        function assignRole(team1, team2) {
-            // Balance roles: assign based on previous history
-            const team1Balance = team1.reduce((sum, name) => sum + getRoleBalance(name), 0);
-            const team2Balance = team2.reduce((sum, name) => sum + getRoleBalance(name), 0);
-            
-            // If team1 has been proposition more, make them opposition this time
-            if (team1Balance > team2Balance) {
-                return { proposition: team2, opposition: team1 };
-            } else {
-                return { proposition: team1, opposition: team2 };
+            // If custom format, use the custom roles
+            if (formatId === 'custom') {
+                const govName = document.getElementById('custom-gov-name').value.trim() || 'Government';
+                const oppName = document.getElementById('custom-opp-name').value.trim() || 'Opposition';
+                format.govName = govName;
+                format.oppName = oppName;
+                format.govRoles = [...customGovRoles];
+                format.oppRoles = [...customOppRoles];
             }
+
+            // Add reply speeches if enabled (for AP format)
+            const includeReply = document.getElementById('include-reply').checked;
+            if (includeReply && format.replyRoles) {
+                format.govRoles = [...format.govRoles, { ...format.replyRoles.gov, isReply: true }];
+                format.oppRoles = [...format.oppRoles, { ...format.replyRoles.opp, isReply: true }];
+            }
+
+            return format;
         }
 
-        function updateRoleHistory(proposition, opposition) {
-            proposition.forEach(name => {
-                if (!roleHistory[name]) roleHistory[name] = { proposition: 0, opposition: 0 };
-                roleHistory[name].proposition = (roleHistory[name].proposition || 0) + 1;
+        function assignRolesToTeam(members, roles) {
+            const assigned = [];
+            members.forEach((member, index) => {
+                const role = roles[index] || null;
+                assigned.push({
+                    name: member,
+                    role: role
+                });
             });
-            
-            opposition.forEach(name => {
-                if (!roleHistory[name]) roleHistory[name] = { proposition: 0, opposition: 0 };
-                roleHistory[name].opposition = (roleHistory[name].opposition || 0) + 1;
-            });
+            return assigned;
         }
 
         function generateDebates() {
-            if (students.length < 4) {
-                alert('Please add at least 4 students to generate debates (minimum 2 per team).');
+            const format = getCurrentFormat();
+            
+            if (students.length < format.minStudents) {
+                alert(`Please add at least ${format.minStudents} students for ${format.name} format.`);
                 return;
             }
 
-            // Get max team size from input
+            // Check if max team size limit is enabled
+            const limitEnabled = document.getElementById('limit-team-size').checked;
             const maxTeamSizeInput = document.getElementById('max-team-size');
-            const maxTeamSize = parseInt(maxTeamSizeInput.value, 10);
+            let maxTeamSize;
             
-            if (isNaN(maxTeamSize) || maxTeamSize < 2) {
-                alert('Maximum team size must be at least 2.');
-                return;
+            if (limitEnabled) {
+                maxTeamSize = parseInt(maxTeamSizeInput.value, 10);
+                if (isNaN(maxTeamSize) || maxTeamSize < 1) {
+                    alert('Maximum team size must be at least 1.');
+                    return;
+                }
+            } else {
+                maxTeamSize = 9999;
             }
 
             // Reset role history for fresh generation
             roleHistory = {};
             
-            // Shuffle students using the same method as the group generator
+            // Shuffle students
             let shuffledStudents = [...students].sort(() => Math.random() - 0.5);
             debates = [];
-            
-            const totalStudents = shuffledStudents.length;
-            
-            // Calculate the number of debates needed
-            // Each debate has 2 teams, each team can have up to maxTeamSize students
-            // So max students per debate = maxTeamSize * 2
-            const maxStudentsPerDebate = maxTeamSize * 2;
-            const numDebates = Math.ceil(totalStudents / maxStudentsPerDebate);
-            
-            // Distribute students evenly across debates
-            // This ensures we use smaller teams rather than exceeding maxTeamSize
-            const studentsPerDebate = Math.ceil(totalStudents / numDebates);
-            
-            let debateNumber = 1;
-            let studentIndex = 0;
-            
-            for (let d = 0; d < numDebates; d++) {
-                // Calculate how many students for this debate
-                const remainingStudents = totalStudents - studentIndex;
-                const remainingDebates = numDebates - d;
-                const studentsForThisDebate = Math.ceil(remainingStudents / remainingDebates);
-                
-                // Get the students for this debate
-                const debateStudents = shuffledStudents.slice(studentIndex, studentIndex + studentsForThisDebate);
-                studentIndex += studentsForThisDebate;
-                
-                // Split into two teams
-                // If odd number, proposition gets more (split with ceiling for proposition)
-                const propSize = Math.ceil(debateStudents.length / 2);
-                const proposition = debateStudents.slice(0, propSize);
-                const opposition = debateStudents.slice(propSize);
-                
-                // Skip if either team would be empty (shouldn't happen with proper distribution)
-                if (proposition.length === 0 || opposition.length === 0) {
-                    continue;
-                }
-                
-                // Update role history
-                updateRoleHistory(proposition, opposition);
-                
-                debates.push({
-                    number: debateNumber++,
-                    proposition: proposition,
-                    opposition: opposition
-                });
+
+            if (format.isFourTeam) {
+                generateFourTeamDebates(shuffledStudents, format, maxTeamSize);
+            } else {
+                generateTwoTeamDebates(shuffledStudents, format, maxTeamSize);
             }
             
             displayResults();
         }
 
+        function generateTwoTeamDebates(shuffledStudents, format, maxTeamSize) {
+            const totalStudents = shuffledStudents.length;
+            const studentsPerTeam = Math.min(maxTeamSize, Math.max(format.govRoles.length, format.oppRoles.length) || 3);
+            const studentsPerDebate = studentsPerTeam * 2;
+            
+            let numDebates = Math.ceil(totalStudents / studentsPerDebate);
+            if (numDebates === 0) numDebates = 1;
+
+            // Calculate debate sizes
+            const debateSizes = [];
+            const baseSize = Math.floor(totalStudents / numDebates);
+            let remainder = totalStudents % numDebates;
+            
+            for (let i = 0; i < numDebates; i++) {
+                debateSizes.push(baseSize + (i < remainder ? 1 : 0));
+            }
+
+            let debateNumber = 1;
+            let studentIndex = 0;
+            
+            for (let d = 0; d < numDebates; d++) {
+                const studentsForThisDebate = debateSizes[d];
+                const debateStudents = shuffledStudents.slice(studentIndex, studentIndex + studentsForThisDebate);
+                studentIndex += studentsForThisDebate;
+                
+                // Split into two teams
+                const propSize = Math.ceil(debateStudents.length / 2);
+                const propMembers = debateStudents.slice(0, propSize);
+                const oppMembers = debateStudents.slice(propSize);
+                
+                if (propMembers.length === 0 || oppMembers.length === 0) continue;
+
+                // Assign roles
+                const proposition = assignRolesToTeam(propMembers, format.govRoles);
+                const opposition = assignRolesToTeam(oppMembers, format.oppRoles);
+                
+                debates.push({
+                    number: debateNumber++,
+                    format: format,
+                    proposition: proposition,
+                    opposition: opposition
+                });
+            }
+        }
+
+        function generateFourTeamDebates(shuffledStudents, format, maxTeamSize) {
+            const totalStudents = shuffledStudents.length;
+            const teamsPerDebate = 4;
+            const studentsPerTeam = 2; // BP/WUDC standard
+            const studentsPerDebate = teamsPerDebate * studentsPerTeam;
+            
+            let numDebates = Math.floor(totalStudents / studentsPerDebate);
+            if (numDebates === 0) numDebates = 1;
+            
+            let debateNumber = 1;
+            let studentIndex = 0;
+            
+            for (let d = 0; d < numDebates && studentIndex < totalStudents; d++) {
+                const debateStudents = shuffledStudents.slice(studentIndex, studentIndex + studentsPerDebate);
+                studentIndex += studentsPerDebate;
+                
+                if (debateStudents.length < 4) continue;
+
+                // Split into 4 teams
+                const teamSize = Math.floor(debateStudents.length / 4);
+                const teams = {};
+                
+                format.teamStructure.forEach((team, i) => {
+                    const start = i * teamSize;
+                    const end = (i === 3) ? debateStudents.length : start + teamSize;
+                    const members = debateStudents.slice(start, end);
+                    teams[team.id] = assignRolesToTeam(members, format.roles[team.id]);
+                });
+                
+                debates.push({
+                    number: debateNumber++,
+                    format: format,
+                    isFourTeam: true,
+                    teams: teams
+                });
+            }
+
+            // Handle remaining students (less than 8)
+            const remainingStudents = shuffledStudents.slice(studentIndex);
+            if (remainingStudents.length >= 4) {
+                // Create a simplified 2-team debate with remaining students
+                const propSize = Math.ceil(remainingStudents.length / 2);
+                const propMembers = remainingStudents.slice(0, propSize);
+                const oppMembers = remainingStudents.slice(propSize);
+
+                debates.push({
+                    number: debateNumber++,
+                    format: { ...format, name: format.name + ' (Simplified)' },
+                    isFourTeam: false,
+                    proposition: assignRolesToTeam(propMembers, format.roles.og),
+                    opposition: assignRolesToTeam(oppMembers, format.roles.oo)
+                });
+            }
+        }
+
+        // ========================================
+        // DISPLAY RESULTS
+        // ========================================
         function displayResults() {
             const resultsSection = document.getElementById('results-section');
             const statsContainer = document.getElementById('stats');
@@ -576,11 +1756,25 @@
             
             resultsSection.classList.remove('hidden');
             
+            // Set print title
+            const classTitle = document.getElementById('class-title').value.trim();
+            const formatName = getCurrentFormat().name;
+            const titleText = classTitle || 'Debate Team Assignments';
+            const dateText = new Date().toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            document.getElementById('print-title').textContent = titleText;
+            document.getElementById('print-date').textContent = dateText;
+            document.getElementById('print-header-title').textContent = titleText;
+            document.getElementById('print-header-date').textContent = `${dateText} | Format: ${formatName}`;
+            
             // Calculate statistics
             const totalStudents = students.length;
             const totalDebates = debates.length;
-            const avgStudentsPerTeam = debates.reduce((sum, d) => 
-                sum + d.proposition.length + d.opposition.length, 0) / (totalDebates * 2);
             
             // Display statistics
             statsContainer.innerHTML = `
@@ -593,8 +1787,8 @@
                     <div class="stat-label">Total Debates</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-value">${avgStudentsPerTeam.toFixed(1)}</div>
-                    <div class="stat-label">Avg Students per Team</div>
+                    <div class="stat-value">${formatName.split(' ')[0]}</div>
+                    <div class="stat-label">Format</div>
                 </div>
             `;
             
@@ -603,44 +1797,138 @@
             debates.forEach(debate => {
                 const card = document.createElement('div');
                 card.className = 'debate-card';
-                card.innerHTML = `
-                    <div class="debate-header">Debate ${debate.number}</div>
-                    <div class="teams">
-                        <div class="team proposition">
-                            <div class="team-header">✅ Proposition Team</div>
-                            <ul class="team-members">
-                                ${debate.proposition.map(name => `<li>${escapeHtml(name)}</li>`).join('')}
-                            </ul>
-                        </div>
-                        <div class="team opposition">
-                            <div class="team-header">❌ Opposition Team</div>
-                            <ul class="team-members">
-                                ${debate.opposition.map(name => `<li>${escapeHtml(name)}</li>`).join('')}
-                            </ul>
-                        </div>
-                    </div>
-                `;
+                
+                if (debate.isFourTeam) {
+                    card.innerHTML = generateFourTeamCard(debate);
+                } else {
+                    card.innerHTML = generateTwoTeamCard(debate);
+                }
+                
                 debatesContainer.appendChild(card);
             });
             
-            // Scroll to results
             resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
+        function generateTwoTeamCard(debate) {
+            const format = debate.format;
+            
+            return `
+                <div class="debate-header">
+                    Debate ${debate.number}
+                    <span class="format-badge">${format.name}</span>
+                </div>
+                <div class="teams">
+                    <div class="team proposition">
+                        <div class="team-header">${format.govIcon} ${format.govName} Team</div>
+                        <ul class="team-members">
+                            ${debate.proposition.map(m => `
+                                <li>
+                                    <span>${escapeHtml(m.name)}</span>
+                                    ${m.role ? `<span class="role-badge ${m.role.isWhip ? 'whip' : ''} ${m.role.isReply ? 'reply' : ''}">${m.role.abbr}</span>` : ''}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                    <div class="team opposition">
+                        <div class="team-header">${format.oppIcon} ${format.oppName} Team</div>
+                        <ul class="team-members">
+                            ${debate.opposition.map(m => `
+                                <li>
+                                    <span>${escapeHtml(m.name)}</span>
+                                    ${m.role ? `<span class="role-badge ${m.role.isWhip ? 'whip' : ''} ${m.role.isReply ? 'reply' : ''}">${m.role.abbr}</span>` : ''}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                </div>
+                <div class="debate-notes">
+                    <label for="notes-${debate.number}">Notes:</label>
+                    <textarea id="notes-${debate.number}" placeholder="Add notes for this debate (topic, room, time, etc.)"></textarea>
+                </div>
+            `;
+        }
+
+        function generateFourTeamCard(debate) {
+            const format = debate.format;
+            
+            let teamsHTML = '';
+            format.teamStructure.forEach(team => {
+                const teamData = debate.teams[team.id];
+                teamsHTML += `
+                    <div class="team ${team.class}">
+                        <div class="team-header">${team.icon} ${team.name}</div>
+                        <ul class="team-members">
+                            ${teamData.map(m => `
+                                <li>
+                                    <span>${escapeHtml(m.name)}</span>
+                                    ${m.role ? `<span class="role-badge ${m.role.isWhip ? 'whip' : ''}">${m.role.abbr}</span>` : ''}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            });
+
+            return `
+                <div class="debate-header">
+                    Debate ${debate.number}
+                    <span class="format-badge">${format.name}</span>
+                </div>
+                <div class="teams four-teams">
+                    ${teamsHTML}
+                </div>
+                <div class="debate-notes">
+                    <label for="notes-${debate.number}">Notes:</label>
+                    <textarea id="notes-${debate.number}" placeholder="Add notes for this debate (topic, room, time, etc.)"></textarea>
+                </div>
+            `;
+        }
+
+        // ========================================
+        // COPY RESULTS
+        // ========================================
         function copyResults() {
-            let text = 'DEBATE TEAM ASSIGNMENTS\n';
-            text += '='.repeat(30) + '\n\n';
+            const classTitle = document.getElementById('class-title').value.trim();
+            const format = getCurrentFormat();
+            
+            let text = classTitle ? `${classTitle}\n` : 'DEBATE TEAM ASSIGNMENTS\n';
+            text += `Format: ${format.name}\n`;
+            text += '='.repeat(40) + '\n\n';
             
             debates.forEach(debate => {
                 text += `DEBATE ${debate.number}\n`;
-                text += `Proposition Team: ${debate.proposition.join(', ')}\n`;
-                text += `Opposition Team: ${debate.opposition.join(', ')}\n\n`;
+                text += '-'.repeat(20) + '\n';
+                
+                if (debate.isFourTeam) {
+                    debate.format.teamStructure.forEach(team => {
+                        const teamData = debate.teams[team.id];
+                        text += `${team.name}:\n`;
+                        teamData.forEach(m => {
+                            text += `  • ${m.name}${m.role ? ` (${m.role.abbr})` : ''}\n`;
+                        });
+                    });
+                } else {
+                    text += `${debate.format.govName} Team:\n`;
+                    debate.proposition.forEach(m => {
+                        text += `  • ${m.name}${m.role ? ` (${m.role.abbr})` : ''}\n`;
+                    });
+                    text += `${debate.format.oppName} Team:\n`;
+                    debate.opposition.forEach(m => {
+                        text += `  • ${m.name}${m.role ? ` (${m.role.abbr})` : ''}\n`;
+                    });
+                }
+                
+                const notesEl = document.getElementById(`notes-${debate.number}`);
+                if (notesEl && notesEl.value.trim()) {
+                    text += `Notes: ${notesEl.value.trim()}\n`;
+                }
+                text += '\n';
             });
             
             navigator.clipboard.writeText(text).then(() => {
                 alert('Results copied to clipboard!');
             }).catch(() => {
-                // Fallback for older browsers
                 const textarea = document.createElement('textarea');
                 textarea.value = text;
                 document.body.appendChild(textarea);
