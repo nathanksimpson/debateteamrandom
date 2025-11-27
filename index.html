@@ -718,9 +718,18 @@
 
         /* Print styles */
         @media print {
+            /* Set page margins to make room for fixed header */
+            @page {
+                margin-top: 80px;
+                margin-bottom: 40px;
+                margin-left: 20px;
+                margin-right: 20px;
+            }
+
             body {
                 background: white;
                 padding: 0;
+                padding-top: 0;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
@@ -739,42 +748,19 @@
             #results-section > h2,
             .print-title,
             .print-date,
-            .format-badge {
+            .format-badge,
+            .print-header {
                 display: none !important;
             }
 
-            /* Print table structure for repeating header */
+            /* Print table structure */
             .print-table {
-                display: table !important;
+                display: block !important;
                 width: 100%;
             }
 
-            .print-header {
-                display: table-header-group !important;
-            }
-
-            .print-header-content {
-                text-align: center;
-                padding: 20px 0;
-                border-bottom: 3px solid #333;
-                margin-bottom: 20px;
-                background: white !important;
-            }
-
-            .print-header-title {
-                font-size: 1.8em;
-                font-weight: bold;
-                margin-bottom: 8px;
-                color: #000;
-            }
-
-            .print-header-date {
-                font-size: 0.9em;
-                color: #333;
-            }
-
             .print-body {
-                display: table-row-group !important;
+                display: block !important;
             }
 
             /* Show results section */
@@ -819,20 +805,6 @@
             .debate-notes label {
                 font-weight: bold;
             }
-
-            /* Running header using CSS position fixed - appears on all pages */
-            .print-running-header {
-                display: block !important;
-                position: running(header);
-            }
-
-            @page {
-                margin-top: 100px;
-                margin-bottom: 50px;
-                @top-center {
-                    content: element(header);
-                }
-            }
         }
 
         /* Hide running header on screen */
@@ -849,9 +821,10 @@
                 left: 0;
                 right: 0;
                 background: white;
-                padding: 15px 20px;
+                padding: 10px 20px;
                 border-bottom: 2px solid #333;
                 z-index: 9999;
+                height: 50px;
             }
 
             .running-header-content {
@@ -862,29 +835,39 @@
             }
 
             .running-title {
-                font-size: 1.2em;
+                font-size: 1.1em;
                 font-weight: bold;
                 color: #000;
             }
 
             .running-date {
-                font-size: 0.85em;
+                font-size: 0.8em;
                 color: #555;
             }
 
-            /* Add top padding to content to account for fixed header */
-            .debates-container {
-                padding-top: 10px;
+            /* Add top margin to EVERY debate card to account for fixed header */
+            .debate-card {
+                margin-top: 70px !important;
+            }
+
+            /* First card needs extra space */
+            .debate-card:first-child {
+                margin-top: 70px !important;
+            }
+
+            /* Hide the table-based header since we're using fixed header */
+            .print-header {
+                display: none !important;
             }
 
             /* Each debate card gets the class name in corner for redundancy */
             .debate-card::before {
                 content: attr(data-class-title);
                 display: block;
-                font-size: 0.75em;
-                color: #666;
+                font-size: 0.7em;
+                color: #888;
                 text-align: right;
-                margin-bottom: 5px;
+                margin-bottom: 8px;
                 font-style: italic;
             }
         }
@@ -1884,7 +1867,7 @@
             // Shuffle students
             let shuffledStudents = [...students].sort(() => Math.random() - 0.5);
             debates = [];
-
+            
             if (format.isFourTeam) {
                 generateFourTeamDebates(shuffledStudents, format, maxTeamSize);
             } else {
@@ -1894,35 +1877,39 @@
             displayResults();
         }
 
-        function generateTwoTeamDebates(shuffledStudents, format, maxTeamSize) {
+function generateTwoTeamDebates(shuffledStudents, format, maxTeamSize) {
             const totalStudents = shuffledStudents.length;
-            const studentsPerTeam = Math.min(maxTeamSize, Math.max(format.govRoles.length, format.oppRoles.length) || 3);
-            const studentsPerDebate = studentsPerTeam * 2;
             
-            let numDebates = Math.ceil(totalStudents / studentsPerDebate);
+            // Goal: Create debates with EVEN teams (2v2, 3v3, etc.)
+            // Priority: Even teams within each debate > number of debates
+            
+            // Max students per debate based on team size limit
+            const maxStudentsPerDebate = maxTeamSize * 2;
+            
+            // Calculate minimum debates needed to respect max team size
+            let numDebates = Math.ceil(totalStudents / maxStudentsPerDebate);
             if (numDebates === 0) numDebates = 1;
-
-            // Calculate debate sizes
-            const debateSizes = [];
-            const baseSize = Math.floor(totalStudents / numDebates);
-            let remainder = totalStudents % numDebates;
             
-            for (let i = 0; i < numDebates; i++) {
-                debateSizes.push(baseSize + (i < remainder ? 1 : 0));
-            }
+            // Distribute students across debates, prioritizing EVEN numbers per debate
+            let debateSizes = distributeForEvenTeams(totalStudents, numDebates, maxStudentsPerDebate);
+            
+            // Sort: larger debates first
+            debateSizes.sort((a, b) => b - a);
 
             let debateNumber = 1;
             let studentIndex = 0;
             
-            for (let d = 0; d < numDebates; d++) {
+            for (let d = 0; d < debateSizes.length; d++) {
                 const studentsForThisDebate = debateSizes[d];
+                if (studentsForThisDebate < 2) continue;
+                
                 const debateStudents = shuffledStudents.slice(studentIndex, studentIndex + studentsForThisDebate);
                 studentIndex += studentsForThisDebate;
                 
-                // Split into two teams
-                const propSize = Math.ceil(debateStudents.length / 2);
-                const propMembers = debateStudents.slice(0, propSize);
-                const oppMembers = debateStudents.slice(propSize);
+                // Split into two EQUAL teams
+                const teamSize = studentsForThisDebate / 2;
+                const propMembers = debateStudents.slice(0, teamSize);
+                const oppMembers = debateStudents.slice(teamSize);
                 
                 if (propMembers.length === 0 || oppMembers.length === 0) continue;
 
@@ -1937,6 +1924,93 @@
                     opposition: opposition
                 });
             }
+        }
+
+        // Helper: Distribute students to maximize even teams (2v2, 3v3, etc.)
+        function distributeForEvenTeams(totalStudents, minDebates, maxPerDebate) {
+            // We want each debate to have an EVEN number of students (for equal teams)
+            // Example: 10 students → 6 + 4 (3v3 + 2v2) ✓
+            // Example: 11 students → 6 + 4 + 1? No → 6 + 6 - 1 = try 4 + 4 + 3? → 6 + 4 with 1 extra
+            
+            const sizes = [];
+            let remaining = totalStudents;
+            let debatesLeft = minDebates;
+            
+            while (remaining > 0 && debatesLeft > 0) {
+                // Calculate ideal size for this debate
+                let idealSize = Math.ceil(remaining / debatesLeft);
+                
+                // Make it even if possible (for equal teams)
+                if (idealSize % 2 === 1 && idealSize < remaining) {
+                    // Try to make it even by adding 1
+                    if (idealSize + 1 <= maxPerDebate) {
+                        idealSize++;
+                    } else if (idealSize > 2) {
+                        // Or subtract 1
+                        idealSize--;
+                    }
+                }
+                
+                // Ensure we don't exceed max
+                idealSize = Math.min(idealSize, maxPerDebate, remaining);
+                
+                // Ensure minimum of 2
+                if (idealSize < 2 && remaining >= 2) {
+                    idealSize = 2;
+                }
+                
+                sizes.push(idealSize);
+                remaining -= idealSize;
+                debatesLeft--;
+            }
+            
+            // Handle any remaining students (shouldn't happen often)
+            if (remaining > 0) {
+                // Add to existing debates or create new ones
+                for (let i = 0; i < sizes.length && remaining > 0; i++) {
+                    // Add pairs to keep teams even
+                    while (remaining >= 2 && sizes[i] + 2 <= maxPerDebate) {
+                        sizes[i] += 2;
+                        remaining -= 2;
+                    }
+                }
+                // If still remaining, add as new small debate
+                if (remaining >= 2) {
+                    sizes.push(remaining);
+                    remaining = 0;
+                } else if (remaining === 1) {
+                    // Single student left - add to smallest debate
+                    const smallestIdx = sizes.indexOf(Math.min(...sizes));
+                    if (sizes[smallestIdx] + 1 <= maxPerDebate) {
+                        sizes[smallestIdx]++;
+                    }
+                }
+            }
+            
+            // Final pass: try to make all debates have even numbers
+            // by transferring between debates
+            for (let i = 0; i < sizes.length; i++) {
+                if (sizes[i] % 2 === 1) {
+                    // This debate has odd number, try to fix
+                    for (let j = i + 1; j < sizes.length; j++) {
+                        if (sizes[j] % 2 === 1) {
+                            // Both odd - transfer 1 student to make both even
+                            if (sizes[i] < maxPerDebate) {
+                                sizes[i]++;
+                                sizes[j]--;
+                                break;
+                            } else if (sizes[j] < maxPerDebate) {
+                                sizes[j]++;
+                                sizes[i]--;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Remove any zeros
+            return sizes.filter(s => s >= 2);
         }
 
         function generateFourTeamDebates(shuffledStudents, format, maxTeamSize) {
@@ -2096,35 +2170,35 @@
                     Debate ${debate.number}
                     <span class="format-badge">${format.name}</span>
                 </div>
-                <div class="teams">
-                    <div class="team proposition">
+                    <div class="teams">
+                        <div class="team proposition">
                         <div class="team-header">${propTeamLabel}</div>
-                        <ul class="team-members">
+                            <ul class="team-members">
                             ${debate.proposition.map(m => `
                                 <li>
                                     <span>${escapeHtml(m.name)}</span>
                                     ${m.role ? `<span class="role-badge ${m.role.isWhip ? 'whip' : ''} ${m.role.isReply ? 'reply' : ''}">${m.role.abbr}</span>` : ''}
                                 </li>
                             `).join('')}
-                        </ul>
-                    </div>
-                    <div class="team opposition">
+                            </ul>
+                        </div>
+                        <div class="team opposition">
                         <div class="team-header">${oppTeamLabel}</div>
-                        <ul class="team-members">
+                            <ul class="team-members">
                             ${debate.opposition.map(m => `
                                 <li>
                                     <span>${escapeHtml(m.name)}</span>
                                     ${m.role ? `<span class="role-badge ${m.role.isWhip ? 'whip' : ''} ${m.role.isReply ? 'reply' : ''}">${m.role.abbr}</span>` : ''}
                                 </li>
                             `).join('')}
-                        </ul>
+                            </ul>
+                        </div>
                     </div>
-                </div>
-                <div class="debate-notes">
-                    <label for="notes-${debate.number}">Notes:</label>
-                    <textarea id="notes-${debate.number}" placeholder="Add notes for this debate (topic, room, time, etc.)"></textarea>
-                </div>
-            `;
+                    <div class="debate-notes">
+                        <label for="notes-${debate.number}">Notes:</label>
+                        <textarea id="notes-${debate.number}" placeholder="Add notes for this debate (topic, room, time, etc.)"></textarea>
+                    </div>
+                `;
         }
 
         function generateFourTeamCard(debate) {
