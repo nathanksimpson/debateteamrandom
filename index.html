@@ -738,7 +738,8 @@
             .actions,
             #results-section > h2,
             .print-title,
-            .print-date {
+            .print-date,
+            .format-badge {
                 display: none !important;
             }
 
@@ -754,20 +755,22 @@
 
             .print-header-content {
                 text-align: center;
-                padding: 15px 0;
-                border-bottom: 2px solid #333;
-                margin-bottom: 15px;
+                padding: 20px 0;
+                border-bottom: 3px solid #333;
+                margin-bottom: 20px;
+                background: white !important;
             }
 
             .print-header-title {
-                font-size: 1.6em;
+                font-size: 1.8em;
                 font-weight: bold;
-                margin-bottom: 5px;
+                margin-bottom: 8px;
+                color: #000;
             }
 
             .print-header-date {
-                font-size: 0.85em;
-                color: #666;
+                font-size: 0.9em;
+                color: #333;
             }
 
             .print-body {
@@ -781,12 +784,17 @@
                 padding: 0;
             }
 
+            .debates-container {
+                display: block !important;
+            }
+
             .debate-card {
                 break-inside: avoid;
                 page-break-inside: avoid;
                 margin-bottom: 20px;
-                border: 1px solid #333;
+                border: 2px solid #333;
                 box-shadow: none;
+                page-break-after: auto;
             }
 
             .team.proposition, .team.government, .team.affirmative, .team.pro,
@@ -810,6 +818,74 @@
 
             .debate-notes label {
                 font-weight: bold;
+            }
+
+            /* Running header using CSS position fixed - appears on all pages */
+            .print-running-header {
+                display: block !important;
+                position: running(header);
+            }
+
+            @page {
+                margin-top: 100px;
+                margin-bottom: 50px;
+                @top-center {
+                    content: element(header);
+                }
+            }
+        }
+
+        /* Hide running header on screen */
+        .print-running-header {
+            display: none;
+        }
+
+        /* Running header styles for print */
+        @media print {
+            .print-running-header {
+                display: block !important;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                padding: 15px 20px;
+                border-bottom: 2px solid #333;
+                z-index: 9999;
+            }
+
+            .running-header-content {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                max-width: 100%;
+            }
+
+            .running-title {
+                font-size: 1.2em;
+                font-weight: bold;
+                color: #000;
+            }
+
+            .running-date {
+                font-size: 0.85em;
+                color: #555;
+            }
+
+            /* Add top padding to content to account for fixed header */
+            .debates-container {
+                padding-top: 10px;
+            }
+
+            /* Each debate card gets the class name in corner for redundancy */
+            .debate-card::before {
+                content: attr(data-class-title);
+                display: block;
+                font-size: 0.75em;
+                color: #666;
+                text-align: right;
+                margin-bottom: 5px;
+                font-style: italic;
             }
         }
     </style>
@@ -982,6 +1058,14 @@
             <div class="print-date" id="print-date"></div>
             
             <div class="stats" id="stats"></div>
+            
+            <!-- Running header for print (appears on every page) -->
+            <div class="print-running-header" id="print-running-header">
+                <div class="running-header-content">
+                    <span class="running-title" id="running-title"></span>
+                    <span class="running-date" id="running-date"></span>
+                </div>
+            </div>
             
             <!-- Print table wrapper for repeating header -->
             <div class="print-table">
@@ -1289,7 +1373,164 @@
 
             // Initialize format display
             onFormatChange();
+
+            // Initialize team pairs mode with one empty pair
+            addTeamPair();
         });
+
+        // ========================================
+        // MODE SWITCHING
+        // ========================================
+        function setMode(mode) {
+            currentMode = mode;
+            
+            // Update button states
+            document.getElementById('mode-random').classList.toggle('active', mode === 'random');
+            document.getElementById('mode-teams').classList.toggle('active', mode === 'teams');
+            
+            // Show/hide sections
+            document.getElementById('random-mode-section').classList.toggle('hidden', mode !== 'random');
+            document.getElementById('teams-mode-section').classList.toggle('hidden', mode !== 'teams');
+            
+            // Update generate button text
+            const generateSection = document.querySelector('.section:has(#class-title)');
+            if (generateSection) {
+                const h2 = generateSection.querySelector('h2');
+                if (mode === 'teams') {
+                    h2.textContent = 'Randomize Sides & Generate';
+                } else {
+                    h2.textContent = 'Generate Teams';
+                }
+            }
+        }
+
+        // ========================================
+        // PRE-MADE TEAMS FUNCTIONS
+        // ========================================
+        function addTeamPair() {
+            const pairId = Date.now();
+            teamPairs.push({
+                id: pairId,
+                teamA: { name: '', members: [] },
+                teamB: { name: '', members: [] }
+            });
+            
+            renderTeamPairs();
+        }
+
+        function removeTeamPair(pairId) {
+            if (teamPairs.length <= 1) {
+                alert('You need at least one debate!');
+                return;
+            }
+            teamPairs = teamPairs.filter(p => p.id !== pairId);
+            renderTeamPairs();
+        }
+
+        function clearAllTeamPairs() {
+            if (confirm('Are you sure you want to clear all team pairs?')) {
+                teamPairs = [];
+                addTeamPair();
+            }
+        }
+
+        function renderTeamPairs() {
+            const container = document.getElementById('team-pairs-container');
+            container.innerHTML = '';
+            
+            teamPairs.forEach((pair, index) => {
+                const pairDiv = document.createElement('div');
+                pairDiv.className = 'team-pair';
+                pairDiv.innerHTML = `
+                    <div class="team-pair-header">
+                        <h3>Debate ${index + 1}</h3>
+                        <button onclick="removeTeamPair(${pair.id})" class="danger" style="padding: 5px 10px; font-size: 12px;">🗑️ Remove</button>
+                    </div>
+                    <div class="team-pair-inputs">
+                        <div class="team-input-box team-a">
+                            <h4>🔵 Team A</h4>
+                            <input type="text" id="team-a-name-${pair.id}" placeholder="Team name (optional)" value="${pair.teamA.name}">
+                            <textarea id="team-a-members-${pair.id}" placeholder="Enter team members (one per line)&#10;Alice&#10;Bob&#10;Charlie">${pair.teamA.members.join('\n')}</textarea>
+                        </div>
+                        <div class="team-input-box team-b">
+                            <h4>🟠 Team B</h4>
+                            <input type="text" id="team-b-name-${pair.id}" placeholder="Team name (optional)" value="${pair.teamB.name}">
+                            <textarea id="team-b-members-${pair.id}" placeholder="Enter team members (one per line)&#10;Diana&#10;Eve&#10;Frank">${pair.teamB.members.join('\n')}</textarea>
+                        </div>
+                    </div>
+                    <div class="randomize-indicator">
+                        <span>🎲</span> Sides will be randomly assigned when you generate
+                    </div>
+                `;
+                container.appendChild(pairDiv);
+            });
+        }
+
+        function getTeamPairsFromInputs() {
+            return teamPairs.map(pair => {
+                const teamAName = document.getElementById(`team-a-name-${pair.id}`)?.value.trim() || '';
+                const teamBName = document.getElementById(`team-b-name-${pair.id}`)?.value.trim() || '';
+                const teamAMembers = (document.getElementById(`team-a-members-${pair.id}`)?.value || '')
+                    .split('\n')
+                    .map(m => m.trim())
+                    .filter(m => m.length > 0);
+                const teamBMembers = (document.getElementById(`team-b-members-${pair.id}`)?.value || '')
+                    .split('\n')
+                    .map(m => m.trim())
+                    .filter(m => m.length > 0);
+                
+                return {
+                    id: pair.id,
+                    teamA: { name: teamAName, members: teamAMembers },
+                    teamB: { name: teamBName, members: teamBMembers }
+                };
+            });
+        }
+
+        function generateFromTeamPairs() {
+            const format = getCurrentFormat();
+            const pairs = getTeamPairsFromInputs();
+            
+            // Validate
+            const validPairs = pairs.filter(p => p.teamA.members.length > 0 && p.teamB.members.length > 0);
+            
+            if (validPairs.length === 0) {
+                alert('Please add members to both teams in at least one debate.');
+                return;
+            }
+
+            debates = [];
+            let debateNumber = 1;
+
+            validPairs.forEach(pair => {
+                // Randomly decide which team is Proposition/Opposition
+                const coinFlip = Math.random() < 0.5;
+                
+                let propTeam, oppTeam;
+                if (coinFlip) {
+                    propTeam = pair.teamA;
+                    oppTeam = pair.teamB;
+                } else {
+                    propTeam = pair.teamB;
+                    oppTeam = pair.teamA;
+                }
+
+                // Assign roles
+                const proposition = assignRolesToTeam(propTeam.members, format.govRoles);
+                const opposition = assignRolesToTeam(oppTeam.members, format.oppRoles);
+
+                debates.push({
+                    number: debateNumber++,
+                    format: format,
+                    proposition: proposition,
+                    opposition: opposition,
+                    propTeamName: propTeam.name,
+                    oppTeamName: oppTeam.name
+                });
+            });
+
+            displayResults();
+        }
 
         // ========================================
         // FORMAT SELECTION HANDLING
@@ -1608,6 +1849,13 @@
         }
 
         function generateDebates() {
+            // Check which mode we're in
+            if (currentMode === 'teams') {
+                generateFromTeamPairs();
+                return;
+            }
+
+            // Random mode - original logic
             const format = getCurrentFormat();
             
             if (students.length < format.minStudents) {
@@ -1772,8 +2020,23 @@
             document.getElementById('print-header-title').textContent = titleText;
             document.getElementById('print-header-date').textContent = `${dateText} | Format: ${formatName}`;
             
+            // Set running header (appears on every printed page)
+            document.getElementById('running-title').textContent = titleText;
+            document.getElementById('running-date').textContent = `${dateText} | ${formatName}`;
+            
             // Calculate statistics
-            const totalStudents = students.length;
+            let totalStudents;
+            if (currentMode === 'teams') {
+                // Count students from team pairs
+                totalStudents = debates.reduce((sum, d) => {
+                    if (d.isFourTeam) {
+                        return sum + Object.values(d.teams).reduce((ts, t) => ts + t.length, 0);
+                    }
+                    return sum + d.proposition.length + d.opposition.length;
+                }, 0);
+            } else {
+                totalStudents = students.length;
+            }
             const totalDebates = debates.length;
             
             // Display statistics
@@ -1790,6 +2053,12 @@
                     <div class="stat-value">${formatName.split(' ')[0]}</div>
                     <div class="stat-label">Format</div>
                 </div>
+                ${currentMode === 'teams' ? `
+                <div class="stat-item">
+                    <div class="stat-value">🎲</div>
+                    <div class="stat-label">Sides Randomized</div>
+                </div>
+                ` : ''}
             `;
             
             // Display debates
@@ -1797,6 +2066,7 @@
             debates.forEach(debate => {
                 const card = document.createElement('div');
                 card.className = 'debate-card';
+                card.setAttribute('data-class-title', titleText); // For print header on each card
                 
                 if (debate.isFourTeam) {
                     card.innerHTML = generateFourTeamCard(debate);
@@ -1813,6 +2083,14 @@
         function generateTwoTeamCard(debate) {
             const format = debate.format;
             
+            // Use custom team names if provided, otherwise use format defaults
+            const propTeamLabel = debate.propTeamName 
+                ? `${format.govIcon} ${format.govName}: ${escapeHtml(debate.propTeamName)}`
+                : `${format.govIcon} ${format.govName} Team`;
+            const oppTeamLabel = debate.oppTeamName 
+                ? `${format.oppIcon} ${format.oppName}: ${escapeHtml(debate.oppTeamName)}`
+                : `${format.oppIcon} ${format.oppName} Team`;
+            
             return `
                 <div class="debate-header">
                     Debate ${debate.number}
@@ -1820,7 +2098,7 @@
                 </div>
                 <div class="teams">
                     <div class="team proposition">
-                        <div class="team-header">${format.govIcon} ${format.govName} Team</div>
+                        <div class="team-header">${propTeamLabel}</div>
                         <ul class="team-members">
                             ${debate.proposition.map(m => `
                                 <li>
@@ -1831,7 +2109,7 @@
                         </ul>
                     </div>
                     <div class="team opposition">
-                        <div class="team-header">${format.oppIcon} ${format.oppName} Team</div>
+                        <div class="team-header">${oppTeamLabel}</div>
                         <ul class="team-members">
                             ${debate.opposition.map(m => `
                                 <li>
@@ -1894,6 +2172,9 @@
             
             let text = classTitle ? `${classTitle}\n` : 'DEBATE TEAM ASSIGNMENTS\n';
             text += `Format: ${format.name}\n`;
+            if (currentMode === 'teams') {
+                text += `(Sides randomly assigned)\n`;
+            }
             text += '='.repeat(40) + '\n\n';
             
             debates.forEach(debate => {
@@ -1909,11 +2190,19 @@
                         });
                     });
                 } else {
-                    text += `${debate.format.govName} Team:\n`;
+                    // Include team name if provided
+                    const propLabel = debate.propTeamName 
+                        ? `${debate.format.govName} (${debate.propTeamName})`
+                        : `${debate.format.govName} Team`;
+                    const oppLabel = debate.oppTeamName 
+                        ? `${debate.format.oppName} (${debate.oppTeamName})`
+                        : `${debate.format.oppName} Team`;
+                    
+                    text += `${propLabel}:\n`;
                     debate.proposition.forEach(m => {
                         text += `  • ${m.name}${m.role ? ` (${m.role.abbr})` : ''}\n`;
                     });
-                    text += `${debate.format.oppName} Team:\n`;
+                    text += `${oppLabel}:\n`;
                     debate.opposition.forEach(m => {
                         text += `  • ${m.name}${m.role ? ` (${m.role.abbr})` : ''}\n`;
                     });
