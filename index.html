@@ -1831,6 +1831,158 @@
             return assigned;
         }
 
+        // Assign students to teams and roles based on speaker order (2-team format)
+        function assignTeamsAndRolesBySpeakerOrder(students, format) {
+            const speakerOrder = format.speakerOrder || [];
+            const proposition = [];
+            const opposition = [];
+            
+            // Create maps to find which team and role index each speaker position belongs to
+            let govRoleIndex = 0;
+            let oppRoleIndex = 0;
+            
+            students.forEach((student, studentIndex) => {
+                // If we have a speaker order, use it to determine team assignment
+                if (speakerOrder.length > 0 && studentIndex < speakerOrder.length) {
+                    const roleAbbr = speakerOrder[studentIndex].replace('*', ''); // Remove reply marker
+                    
+                    // Find which team this role belongs to
+                    const govRole = format.govRoles.find(r => r.abbr === roleAbbr);
+                    const oppRole = format.oppRoles.find(r => r.abbr === roleAbbr);
+                    
+                    if (govRole) {
+                        // This role belongs to Government/Proposition
+                        proposition.push({
+                            name: student,
+                            role: govRole
+                        });
+                    } else if (oppRole) {
+                        // This role belongs to Opposition
+                        opposition.push({
+                            name: student,
+                            role: oppRole
+                        });
+                    } else {
+                        // Role not found in speaker order, assign based on position
+                        // Alternate: even positions go to Proposition, odd to Opposition
+                        if (studentIndex % 2 === 0) {
+                            const role = format.govRoles[govRoleIndex] || null;
+                            proposition.push({
+                                name: student,
+                                role: role
+                            });
+                            govRoleIndex++;
+                        } else {
+                            const role = format.oppRoles[oppRoleIndex] || null;
+                            opposition.push({
+                                name: student,
+                                role: role
+                            });
+                            oppRoleIndex++;
+                        }
+                    }
+                } else {
+                    // No speaker order or more students than speaker order positions
+                    // Alternate assignment: even positions go to Proposition, odd to Opposition
+                    if (studentIndex % 2 === 0) {
+                        const role = format.govRoles[govRoleIndex] || null;
+                        proposition.push({
+                            name: student,
+                            role: role
+                        });
+                        govRoleIndex++;
+                    } else {
+                        const role = format.oppRoles[oppRoleIndex] || null;
+                        opposition.push({
+                            name: student,
+                            role: role
+                        });
+                        oppRoleIndex++;
+                    }
+                }
+            });
+            
+            return { proposition, opposition };
+        }
+
+        // Assign students to teams and roles based on speaker order (4-team format)
+        function assignFourTeamsAndRolesBySpeakerOrder(students, format) {
+            const speakerOrder = format.speakerOrder || [];
+            const teams = {
+                og: [],
+                oo: [],
+                cg: [],
+                co: []
+            };
+            
+            // Track role indices for each team
+            const roleIndices = {
+                og: 0,
+                oo: 0,
+                cg: 0,
+                co: 0
+            };
+            
+            students.forEach((student, studentIndex) => {
+                // If we have a speaker order, use it to determine team assignment
+                if (speakerOrder.length > 0 && studentIndex < speakerOrder.length) {
+                    const roleAbbr = speakerOrder[studentIndex].replace('*', ''); // Remove reply marker
+                    
+                    // Find which team this role belongs to by checking all team roles
+                    let assigned = false;
+                    for (const teamId of ['og', 'oo', 'cg', 'co']) {
+                        const teamRoles = format.roles[teamId] || [];
+                        const role = teamRoles.find(r => r.abbr === roleAbbr);
+                        if (role) {
+                            teams[teamId].push({
+                                name: student,
+                                role: role
+                            });
+                            assigned = true;
+                            break;
+                        }
+                    }
+                    
+                    // If role not found, assign based on position in speaker order
+                    if (!assigned) {
+                        // For BP/WUDC: positions 0,2 → OG; 1,3 → OO; 4,6 → CG; 5,7 → CO
+                        if (studentIndex % 4 === 0 || studentIndex % 4 === 2) {
+                            // OG or CG
+                            const teamId = studentIndex < 4 ? 'og' : 'cg';
+                            const role = format.roles[teamId][roleIndices[teamId]] || null;
+                            teams[teamId].push({
+                                name: student,
+                                role: role
+                            });
+                            roleIndices[teamId]++;
+                        } else {
+                            // OO or CO
+                            const teamId = studentIndex < 4 ? 'oo' : 'co';
+                            const role = format.roles[teamId][roleIndices[teamId]] || null;
+                            teams[teamId].push({
+                                name: student,
+                                role: role
+                            });
+                            roleIndices[teamId]++;
+                        }
+                    }
+                } else {
+                    // No speaker order or more students than speaker order positions
+                    // Assign in round-robin: OG, OO, CG, CO
+                    const teamIds = ['og', 'oo', 'cg', 'co'];
+                    const teamId = teamIds[studentIndex % 4];
+                    const role = format.roles[teamId][roleIndices[teamId]] || null;
+                    teams[teamId].push({
+                        name: student,
+                        role: role
+                    });
+                    roleIndices[teamId]++;
+                }
+            });
+            
+            return teams;
+        }
+
         function generateDebates() {
             // Check which mode we're in
             if (currentMode === 'teams') {
@@ -1906,16 +2058,12 @@ function generateTwoTeamDebates(shuffledStudents, format, maxTeamSize) {
                 const debateStudents = shuffledStudents.slice(studentIndex, studentIndex + studentsForThisDebate);
                 studentIndex += studentsForThisDebate;
                 
-                // Split into two EQUAL teams
-                const teamSize = studentsForThisDebate / 2;
-                const propMembers = debateStudents.slice(0, teamSize);
-                const oppMembers = debateStudents.slice(teamSize);
-                
-                if (propMembers.length === 0 || oppMembers.length === 0) continue;
+                if (debateStudents.length === 0) continue;
 
-                // Assign roles
-                const proposition = assignRolesToTeam(propMembers, format.govRoles);
-                const opposition = assignRolesToTeam(oppMembers, format.oppRoles);
+                // Assign teams and roles based on speaker order
+                const { proposition, opposition } = assignTeamsAndRolesBySpeakerOrder(debateStudents, format);
+                
+                if (proposition.length === 0 || opposition.length === 0) continue;
                 
                 debates.push({
                     number: debateNumber++,
@@ -2031,16 +2179,8 @@ function generateTwoTeamDebates(shuffledStudents, format, maxTeamSize) {
                 
                 if (debateStudents.length < 4) continue;
 
-                // Split into 4 teams
-                const teamSize = Math.floor(debateStudents.length / 4);
-                const teams = {};
-                
-                format.teamStructure.forEach((team, i) => {
-                    const start = i * teamSize;
-                    const end = (i === 3) ? debateStudents.length : start + teamSize;
-                    const members = debateStudents.slice(start, end);
-                    teams[team.id] = assignRolesToTeam(members, format.roles[team.id]);
-                });
+                // Assign teams and roles based on speaker order
+                const teams = assignFourTeamsAndRolesBySpeakerOrder(debateStudents, format);
                 
                 debates.push({
                     number: debateNumber++,
@@ -2054,16 +2194,21 @@ function generateTwoTeamDebates(shuffledStudents, format, maxTeamSize) {
             const remainingStudents = shuffledStudents.slice(studentIndex);
             if (remainingStudents.length >= 4) {
                 // Create a simplified 2-team debate with remaining students
-                const propSize = Math.ceil(remainingStudents.length / 2);
-                const propMembers = remainingStudents.slice(0, propSize);
-                const oppMembers = remainingStudents.slice(propSize);
+                // Use speaker order to assign teams and roles
+                const simplifiedFormat = { 
+                    ...format, 
+                    name: format.name + ' (Simplified)',
+                    govRoles: format.roles.og || [],
+                    oppRoles: format.roles.oo || []
+                };
+                const { proposition, opposition } = assignTeamsAndRolesBySpeakerOrder(remainingStudents, simplifiedFormat);
 
                 debates.push({
                     number: debateNumber++,
-                    format: { ...format, name: format.name + ' (Simplified)' },
+                    format: simplifiedFormat,
                     isFourTeam: false,
-                    proposition: assignRolesToTeam(propMembers, format.roles.og),
-                    opposition: assignRolesToTeam(oppMembers, format.roles.oo)
+                    proposition: proposition,
+                    opposition: opposition
                 });
             }
         }
